@@ -8,12 +8,22 @@ namespace Lab1
 {
     class RandomAlgorithm : Algorithm
     {
-        public Invidual Run(List<Node> nodes)
+        public RandomAlgorithm(int populationSize, List<Node> nodes) : base(populationSize, nodes) { }
+
+        override public Invidual run()
         {
-            
+            List<Invidual> population = InvidualUtils.generateRandomPopulation(populationSize, nodes.Count);
 
+            Invidual best = population[0];
 
-            return new Invidual(new List<int>());
+            population.ForEach(
+                current => {
+                    evaluate(current);
+                    if (current.fitness > best.fitness) best = current;
+                });
+
+            return best;
         }
+
     }
 }

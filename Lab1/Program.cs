@@ -10,9 +10,12 @@ namespace Lab1
     {
         static void Main(string[] args)
         {
-            DataLoader.readFile("Resources/berlin11_modified.tsp");
+            List<Node> nodes = DataLoader.readFile("Resources/berlin11_modified.tsp");
 
-
+            Algorithm algorithm = new RandomAlgorithm(1000000, nodes);
+            Invidual bestRandom = algorithm.run();
+            Console.WriteLine($"Algorytm losowy score = {bestRandom.score}");
+            Console.ReadLine();
         }
     }
 }
