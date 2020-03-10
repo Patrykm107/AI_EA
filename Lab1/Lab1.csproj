@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\Algorithm.cs" />
+    <Compile Include="Algorithm\GreedyAlgorithm.cs" />
     <Compile Include="Data\DataLoader.cs" />
     <Compile Include="Algorithm\Invidual.cs" />
     <Compile Include="Data\Node.cs" />

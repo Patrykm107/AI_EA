@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,10 +11,10 @@ namespace Lab1
 {
     class DataLoader
     {
-        private static string BEGIN_FILE = "NODE_COORD_SECTION";
-        private static string END_FILE = "EOF";
+        private static readonly string BEGIN_FILE = "NODE_COORD_SECTION";
+        private static readonly string END_FILE = "EOF";
 
-        public static List<Node> readFile(string fileName)
+        public static (List<Node>, Dictionary<(int,int), float>) ReadFile(string fileName)
         {
             List<string> lines = File.ReadAllLines(fileName).ToList();
             int begin = lines.IndexOf(BEGIN_FILE);
@@ -24,6 +25,8 @@ namespace Lab1
             char[] splitChars = {' '};
 
             List<Node> nodes = new List<Node>();
+            Dictionary<(int, int), float> distances = new Dictionary<(int, int), float>();
+            List<int> visited = new List<int>();
 
             lines.ForEach(
                 line =>
@@ -34,11 +37,25 @@ namespace Lab1
                     float x = float.Parse(nums[1], CultureInfo.InvariantCulture);
                     float y = float.Parse(nums[2], CultureInfo.InvariantCulture);
 
-                    nodes.Add(new Node(id, x, y));
+                    Node newNode = new Node(id, x, y);
+
+                    visited.ForEach(
+                        nodeId =>
+                        {
+                            if (!distances.ContainsKey((newNode.id, nodeId))) {
+                                float distance = Vector2.Distance(newNode.coords, nodes[nodeId - 1].coords); //node id starts at 1, list at 0
+                                    distances.Add((newNode.id, nodeId), distance);
+                                distances.Add((nodeId, newNode.id), distance);
+                            }
+                        });
+                    distances.Add((newNode.id, newNode.id), 0);
+                    visited.Add(newNode.id);
+
+                    nodes.Add(newNode);
                 }
             );
 
-            return nodes;
+            return (nodes, distances);
         }
     }
 }

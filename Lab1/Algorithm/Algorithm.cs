@@ -9,26 +9,25 @@ namespace Lab1
 {
     abstract class Algorithm
     {
-        protected int populationSize;
         protected List<Node> nodes;
+        protected Dictionary<(int, int), float> distances;
 
-        protected Algorithm(int populationSize, List<Node> nodes)
+        protected Algorithm(List<Node> nodes, Dictionary<(int, int), float> distances)
         {
-            this.populationSize = populationSize;
             this.nodes = nodes;
+            this.distances = distances;
         }
 
-        public abstract Invidual run();
+        public abstract Invidual Run();
 
-        protected void evaluate(Invidual invidual) {
+        protected void Evaluate(Invidual invidual) {
             double score = 0;
 
-            for (int i = 0; i < invidual.gene.Count-1; i++)
+            for (int i = 0; i < invidual.genes.Count-1; i++)
             {
-                score += Vector2.Distance(nodes[invidual.gene[i]-1].coords, nodes[invidual.gene[i+1]-1].coords);
+                score += distances[(invidual.genes[i], invidual.genes[i + 1])];
             }
-
-            score *= 2;
+            score += distances[(invidual.genes[nodes.Count - 1], invidual.genes[0])];
 
             invidual.score = score;
             invidual.fitness = 1.0 / score;

@@ -8,13 +8,26 @@ namespace Lab1
 {
     class Invidual
     {
-        public List<int> gene;
+        public List<int> genes;
         public double fitness = 0;
         public double score;
 
+        public Invidual() { }
         public Invidual(List<int> gene)
         {
-            this.gene = gene;
+            this.genes = gene;
+        }
+
+        override public string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (int gene in genes)
+            {
+                builder.Append($"{gene} ");
+            }
+            builder.Append($"\tScore: {score}");
+
+            return builder.ToString();
         }
     }
 
@@ -32,7 +45,7 @@ namespace Lab1
         {
             List<Invidual> population = new List<Invidual>();
 
-            for(int i = 0; i<populationSize; i++)
+            for(int i = 0; i < populationSize; i++)
             {
                 population.Add(generateRandomInvidual(geneSize));
             }

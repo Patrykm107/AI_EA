@@ -8,9 +8,12 @@ namespace Lab1
 {
     class RandomAlgorithm : Algorithm
     {
-        public RandomAlgorithm(int populationSize, List<Node> nodes) : base(populationSize, nodes) { }
+        private int populationSize;
+        public RandomAlgorithm(int populationSize, List<Node> nodes, Dictionary<(int, int), float> distances) : base(nodes, distances) {
+            this.populationSize = populationSize;
+        }
 
-        override public Invidual run()
+        override public Invidual Run()
         {
             List<Invidual> population = InvidualUtils.generateRandomPopulation(populationSize, nodes.Count);
 
@@ -18,7 +21,7 @@ namespace Lab1
 
             population.ForEach(
                 current => {
-                    evaluate(current);
+                    Evaluate(current);
                     if (current.fitness > best.fitness) best = current;
                 });
 
