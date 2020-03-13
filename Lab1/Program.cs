@@ -8,6 +8,13 @@ namespace Lab1
 {
     class Program
     {
+        private static int randomLoops = 100000;
+        private static int populationSize = 100;
+        private static int generationsCount = 100;
+        private static float crossProbability = 0.7f;
+        private static float mutationProbability = 0.1f;
+        private static int tour = 5;
+
         static void Main(string[] args)
         {
             (List<Node> nodes, Dictionary<(int, int), float> distances) =
@@ -15,8 +22,10 @@ namespace Lab1
 
             List<Algorithm> algorithms = new List<Algorithm>
             {
-                new RandomAlgorithm(100000, nodes, distances),
-                new GreedyAlgorithm(nodes, distances)
+/*                new RandomAlgorithm(randomLoops, nodes, distances),
+                new GreedyAlgorithm(nodes, distances),*/
+                new EvolutionaryAlgorithm(nodes, distances, populationSize,
+                    mutationProbability, crossProbability, generationsCount, tour)
             };
 
             foreach (Algorithm alg in algorithms)
@@ -25,8 +34,6 @@ namespace Lab1
                 Invidual resultInvidual = alg.Run();
                 Console.WriteLine($"{alg.GetType()} \t = {resultInvidual} \nCzas: {DateTime.Now - start}");
             }
-
-
 
             Console.ReadLine();
         }

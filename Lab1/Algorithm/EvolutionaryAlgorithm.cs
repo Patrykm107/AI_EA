@@ -12,54 +12,83 @@ namespace Lab1
 
         private int populationSize;
         private float mutationProb;
+        private float crossoverProb;
         private int generationsCount;
-        private int tournamentStress = 5; //Number of inviduals chosen
+        private int tour;
 
 
         public EvolutionaryAlgorithm(List<Node> nodes, Dictionary<(int, int), float> distances, int populationSize,
-            float mutationProb, int generationsCount)
+            float mutationProb, float crossoverProb, int generationsCount, int tour)
             : base(nodes, distances) {
             this.populationSize = populationSize;
             this.mutationProb = mutationProb;
+            this.crossoverProb = crossoverProb;
             this.generationsCount = generationsCount;
+            this.tour = tour;
         }
 
         public override Invidual Run()
         {
-            throw new NotImplementedException();
+            List<Invidual> population = InvidualUtils.generateRandomPopulation(populationSize, nodes.Count);
+            List<Invidual> newPopulation;
+            Invidual bestInvidual = new Invidual();
+
+            population.ForEach(
+                inv =>
+                {
+                    Evaluate(inv);
+                });
+
+            for(int i = 0; i < generationsCount; i++)
+            {
+                newPopulation = new List<Invidual>();
+                while (newPopulation.Count < this.populationSize)
+                {
+                    Invidual parent1 = TournamentSelection(population);
+                    Invidual parent2 = TournamentSelection(population);
+
+                    Invidual kid = Crossover(parent1, parent2);
+                    if (random.NextDouble() < mutationProb) { Mutate(kid); }
+
+                    Evaluate(kid);
+                    newPopulation.Add(kid);
+
+                    if (kid.fitness > bestInvidual.fitness)
+                    {
+                        bestInvidual = kid;
+                    }
+                }
+                population = newPopulation;
+            }
+
+            return bestInvidual;
         }
 
         //Inversion
         private void Mutate(Invidual invidual)
         {
-            if (random.NextDouble() < mutationProb)
+            List<int> points = GenerateUniqueRandomPoints(2, invidual.genes.Count);
+            int p1 = points[0], p2 = points[1];
+
+            if (p1 < p2)
             {
-                List<int> points = GenerateUniqueRandomPoints(2, invidual.genes.Count);
-                int p1 = points[0], p2 = points[1];
+                invidual.genes.Reverse(p1, p2 - p1 + 1);
+            } 
+            else
+            {   //Inversion based on list being a circle instead straight line
 
-                if (p1 < p2)
-                {
-                    invidual.genes.Reverse(p1, p2 - p1 + 1);
-                } 
-                else
-                {   //Inversion based on list being a circle instead straight line
+                int countFirstPart = invidual.genes.Count - p1, countSecondPart = p2 + 1;
+                List<int> notMutate = invidual.genes.GetRange(p2 + 1, p1 - p2 - 1);
+                List<int> mutation = invidual.genes.GetRange(p1, countFirstPart);
+                mutation.AddRange(invidual.genes.GetRange(0, countSecondPart));
+                mutation.Reverse();
 
-                    int countFirstPart = invidual.genes.Count - p1, countSecondPart = p2 + 1;
-                    List<int> notMutate = invidual.genes.GetRange(p2 + 1, p1 - p2 - 1);
-                    List<int> mutation = invidual.genes.GetRange(p1, countFirstPart);
-                    mutation.AddRange(invidual.genes.GetRange(0, countSecondPart));
-                    mutation.Reverse();
+                List<int> mutated = mutation.GetRange(mutation.Count - countSecondPart, countSecondPart);
+                mutated.AddRange(notMutate);
+                mutated.AddRange(mutation.GetRange(0, countFirstPart));
 
-                    List<int> mutated = mutation.GetRange(mutation.Count - countSecondPart, countSecondPart);
-                    mutated.AddRange(notMutate);
-                    mutated.AddRange(mutation.GetRange(0, countFirstPart));
-
-                    invidual.genes = mutated;
-                }
-
-
+                invidual.genes = mutated;
             }
-            
         }
 
         //Ordered Crossover
@@ -93,7 +122,7 @@ namespace Lab1
 
         private Invidual TournamentSelection(List<Invidual> population)
         {
-            List<int> invidualIds = GenerateUniqueRandomPoints(tournamentStress, nodes.Count);
+            List<int> invidualIds = GenerateUniqueRandomPoints(tour, nodes.Count);
             Invidual bestInvidual = new Invidual();
             invidualIds.ForEach(
                 id =>
