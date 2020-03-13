@@ -8,10 +8,13 @@ namespace Lab1
 {
     class EvolutionaryAlgorithm : Algorithm
     {
+        private static Random random = new Random();
+
         private int populationSize;
         private float mutationProb;
         private int generationsCount;
-        private static Random random = new Random();
+        private int tournamentStress = 5; //Number of inviduals chosen
+
 
         public EvolutionaryAlgorithm(List<Node> nodes, Dictionary<(int, int), float> distances, int populationSize,
             float mutationProb, int generationsCount)
@@ -31,8 +34,8 @@ namespace Lab1
         {
             if (random.NextDouble() < mutationProb)
             {
-                int p1, p2;
-                (p1, p2) = generateUniqueRandomPoints(invidual.genes.Count);
+                List<int> points = GenerateUniqueRandomPoints(2, invidual.genes.Count);
+                int p1 = points[0], p2 = points[1];
 
                 if (p1 < p2)
                 {
@@ -62,8 +65,8 @@ namespace Lab1
         //Ordered Crossover
         private Invidual Crossover(Invidual parent1, Invidual parent2)
         {
-            int p1, p2;
-            (p1, p2) = generateUniqueRandomPoints(nodes.Count);
+            List<int> points = GenerateUniqueRandomPoints(2, nodes.Count);
+            int p1 = points[0], p2 = points[1];
 
             if (p1 > p2)
             {
@@ -88,16 +91,51 @@ namespace Lab1
             return new Invidual(newGenes);
         }
 
-        private (int, int) generateUniqueRandomPoints(int max)
+        private Invidual TournamentSelection(List<Invidual> population)
         {
-            int p1 = random.Next(max);
-            int p2 = random.Next(max);
-            while (p1 == p2)
+            List<int> invidualIds = GenerateUniqueRandomPoints(tournamentStress, nodes.Count);
+            Invidual bestInvidual = new Invidual();
+            invidualIds.ForEach(
+                id =>
+                {
+                    if(population[id].fitness > bestInvidual.fitness)
+                    {
+                        bestInvidual = population[id];
+                    }
+                });
+            return bestInvidual;
+        }
+
+        private Invidual RouletteSelection(List<Invidual> population)
+        {
+            double sum = 0;
+            List<double> probabilities = new List<double>();
+            population.ForEach(
+                inv =>
+                {
+                    sum += inv.fitness;
+                    probabilities.Add(sum);
+                }
+                );
+            probabilities.ForEach(p => p = p / sum);
+
+            throw new NotImplementedException();
+        }
+
+        private List<int> GenerateUniqueRandomPoints(int count, int max)
+        {
+            List<int> points = new List<int>();
+            for(int i = 0; i < count; i++)
             {
-                p2 = random.Next(max);
+                int p = random.Next(max);
+                while (points.Contains(p))
+                {
+                    p = random.Next(max);
+                }
+                points.Add(p);
             }
 
-            return (p1, p2);
+            return points;
         }
     }
 }
