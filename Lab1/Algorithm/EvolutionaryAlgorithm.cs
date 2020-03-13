@@ -117,9 +117,15 @@ namespace Lab1
                     probabilities.Add(sum);
                 }
                 );
-            probabilities.ForEach(p => p = p / sum);
+            probabilities.ForEach(p => p /= sum);
 
-            throw new NotImplementedException();
+            int invidualId = probabilities.BinarySearch(random.NextDouble());
+            if (invidualId < 0)
+            {
+                invidualId = ~invidualId + 1;
+            }
+
+            return population[invidualId];
         }
 
         private List<int> GenerateUniqueRandomPoints(int count, int max)
