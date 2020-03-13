@@ -11,6 +11,7 @@ namespace Lab1
         private int populationSize;
         private float mutationProb;
         private int generationsCount;
+        private static Random random = new Random();
 
         public EvolutionaryAlgorithm(List<Node> nodes, Dictionary<(int, int), float> distances, int populationSize,
             float mutationProb, int generationsCount)
@@ -26,17 +27,12 @@ namespace Lab1
         }
 
         //Inversion
-        public void Mutate(Invidual invidual)
+        private void Mutate(Invidual invidual)
         {
-            Random random = new Random();
             if (random.NextDouble() < mutationProb)
             {
-                int p1 = random.Next(invidual.genes.Count);
-                int p2 = random.Next(invidual.genes.Count);
-                while (p1 == p2)
-                {
-                    p2 = random.Next(invidual.genes.Count);
-                }
+                int p1, p2;
+                (p1, p2) = generateUniqueRandomPoints(invidual.genes.Count);
 
                 if (p1 < p2)
                 {
@@ -63,10 +59,45 @@ namespace Lab1
             
         }
 
-        private (Invidual, Invidual) Crossover(Invidual parent1, Invidual parent2)
+        //Ordered Crossover
+        private Invidual Crossover(Invidual parent1, Invidual parent2)
         {
+            int p1, p2;
+            (p1, p2) = generateUniqueRandomPoints(nodes.Count);
 
-            throw new NotImplementedException();
+            if (p1 > p2)
+            {
+                int h = p1;
+                p1 = p2;
+                p2 = h;
+            }
+
+            List<int> part1 = parent1.genes.GetRange(p1, p2 - p1 + 1);
+            List<int> part2 = new List<int>(parent2.genes);
+            part1.ForEach(
+                g =>
+                {
+                    part2.Remove(g);
+                }
+                );
+
+            List<int> newGenes = part2.GetRange(0, p1);
+            newGenes.AddRange(part1);
+            newGenes.AddRange(part2.GetRange(p1, part2.Count - p1));
+
+            return new Invidual(newGenes);
+        }
+
+        private (int, int) generateUniqueRandomPoints(int max)
+        {
+            int p1 = random.Next(max);
+            int p2 = random.Next(max);
+            while (p1 == p2)
+            {
+                p2 = random.Next(max);
+            }
+
+            return (p1, p2);
         }
     }
 }
