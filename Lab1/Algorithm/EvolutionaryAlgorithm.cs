@@ -10,12 +10,14 @@ namespace Lab1
     {
         private int populationSize;
         private float mutationProb;
+        private int generationsCount;
 
         public EvolutionaryAlgorithm(List<Node> nodes, Dictionary<(int, int), float> distances, int populationSize,
-            float mutationProb)
+            float mutationProb, int generationsCount)
             : base(nodes, distances) {
             this.populationSize = populationSize;
             this.mutationProb = mutationProb;
+            this.generationsCount = generationsCount;
         }
 
         public override Invidual Run()
@@ -23,8 +25,8 @@ namespace Lab1
             throw new NotImplementedException();
         }
 
-        //Inwersja
-        private void Mutate(Invidual invidual)
+        //Inversion
+        public void Mutate(Invidual invidual)
         {
             Random random = new Random();
             if (random.NextDouble() < mutationProb)
@@ -36,21 +38,33 @@ namespace Lab1
                     p2 = random.Next(invidual.genes.Count);
                 }
 
-                if (p2 < p1)
+                if (p1 < p2)
                 {
-                    int h = p1;
-                    p1 = p2;
-                    p2 = h;
+                    invidual.genes.Reverse(p1, p2 - p1 + 1);
+                } 
+                else
+                {   //Inversion based on list being a circle instead straight line
+
+                    int countFirstPart = invidual.genes.Count - p1, countSecondPart = p2 + 1;
+                    List<int> notMutate = invidual.genes.GetRange(p2 + 1, p1 - p2 - 1);
+                    List<int> mutation = invidual.genes.GetRange(p1, countFirstPart);
+                    mutation.AddRange(invidual.genes.GetRange(0, countSecondPart));
+                    mutation.Reverse();
+
+                    List<int> mutated = mutation.GetRange(mutation.Count - countSecondPart, countSecondPart);
+                    mutated.AddRange(notMutate);
+                    mutated.AddRange(mutation.GetRange(0, countFirstPart));
+
+                    invidual.genes = mutated;
                 }
 
-                invidual.genes.Reverse(p1, p2 - p1);
+
             }
             
         }
 
         private (Invidual, Invidual) Crossover(Invidual parent1, Invidual parent2)
         {
-
 
             throw new NotImplementedException();
         }
