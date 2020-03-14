@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Lab1
     class EvolutionaryAlgorithm : Algorithm
     {
         private static Random random = new Random();
+        private static string FILE_NAME = $"EvolutionaryAlg_{DateTime.Now.Day}__{DateTime.Now.Hour}_{DateTime.Now.Minute}.csv";
 
         private int populationSize;
         private float mutationProb;
@@ -29,6 +31,13 @@ namespace Lab1
 
         public override Invidual Run()
         {
+            if (File.Exists(FILE_NAME))
+            {
+                File.Delete(FILE_NAME);
+            }
+            File.AppendAllText(FILE_NAME, $"PopSize: {populationSize} MutationProb: {mutationProb} CrossoverProb: {crossoverProb}" +
+                $" GenCount: {generationsCount} Tour: {tour}; Best; Avg; Worst;\n");
+
             List<Invidual> population = InvidualUtils.generateRandomPopulation(populationSize, nodes.Count);
             List<Invidual> newPopulation;
             Invidual bestInvidual = new Invidual();
@@ -47,7 +56,8 @@ namespace Lab1
                     Invidual parent1 = TournamentSelection(population);
                     Invidual parent2 = TournamentSelection(population);
 
-                    Invidual kid = Crossover(parent1, parent2);
+                    Invidual kid = new Invidual(parent1);
+                    if (random.NextDouble() < crossoverProb) { kid = Crossover(parent1, parent2); }
                     if (random.NextDouble() < mutationProb) { Mutate(kid); }
 
                     Evaluate(kid);
@@ -58,7 +68,12 @@ namespace Lab1
                         bestInvidual = kid;
                     }
                 }
+                double maxScore = newPopulation.Max(p => p.score);
+                newPopulation.ForEach(p => MaxEvaluate(p, maxScore));
                 population = newPopulation;
+
+                File.AppendAllText(FILE_NAME, $"{i+1}; {population.Min(inv => inv.score)}; " +
+                    $"{population.Average(inv => inv.score)}; {population.Max(inv => inv.score)};\n");
             }
 
             return bestInvidual;
@@ -146,15 +161,24 @@ namespace Lab1
                     probabilities.Add(sum);
                 }
                 );
-            probabilities.ForEach(p => p /= sum);
+
+            for(int i = 0; i< probabilities.Count; i++)
+            {
+                probabilities[i] = probabilities[i] / sum;
+            }
 
             int invidualId = probabilities.BinarySearch(random.NextDouble());
             if (invidualId < 0)
             {
-                invidualId = ~invidualId + 1;
+                invidualId = ~invidualId;
             }
 
             return population[invidualId];
+        }
+
+        private void MaxEvaluate(Invidual invidual, double maxValue)
+        {
+            invidual.fitness = maxValue - invidual.score;
         }
 
         private List<int> GenerateUniqueRandomPoints(int count, int max)

@@ -18,6 +18,11 @@ namespace Lab1
             this.genes = gene;
         }
 
+        public Invidual(Invidual invidual)
+        {
+            this.genes = new List<int>(invidual.genes);
+        }
+
         override public string ToString()
         {
             StringBuilder builder = new StringBuilder();
