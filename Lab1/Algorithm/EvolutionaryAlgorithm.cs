@@ -74,7 +74,7 @@ namespace Lab1
                 );
 
                 double maxScore = newPopulation.Max(p => p.score);
-                newPopulation.ForEach(p => MaxEvaluate(p, maxScore));
+                //newPopulation.ForEach(p => MaxEvaluate(p, maxScore));
                 population = newPopulation;
 
                 File.AppendAllText(fileName, $"{i + 1}; {population.Min(inv => inv.score)}; " +
@@ -181,9 +181,10 @@ namespace Lab1
             return population[invidualId];
         }
 
+        //better Fitness for Roulette
         private void MaxEvaluate(Invidual invidual, double maxValue)
         {
-            invidual.fitness = maxValue - invidual.score + 10;
+            invidual.fitness = Math.Pow(maxValue - invidual.score + 10, Math.E);
         }
 
         private List<int> GenerateUniqueRandomPoints(int count, int max)
