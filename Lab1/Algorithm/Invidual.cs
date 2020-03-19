@@ -21,6 +21,8 @@ namespace Lab1
         public Invidual(Invidual invidual)
         {
             this.genes = new List<int>(invidual.genes);
+            this.score = invidual.score;
+            this.fitness = invidual.fitness;
         }
 
         override public string ToString()

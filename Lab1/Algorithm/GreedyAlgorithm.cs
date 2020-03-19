@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ namespace Lab1
 {
     class GreedyAlgorithm : Algorithm
     {
+        private static string FILE_NAME = $"GreedyAlg_{DateTime.Now.Day}__{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}.csv";
+
         public GreedyAlgorithm(List<Node> nodes, Dictionary<(int, int), float> distances) : base(nodes, distances) {}
 
         public override Invidual Run()
@@ -41,6 +44,7 @@ namespace Lab1
 
                 Invidual newInvidual = new Invidual(visited.Select(n => n.id).ToList());
                 Evaluate(newInvidual);
+                File.AppendAllText(FILE_NAME, $"{newInvidual.score};\n");
 
                 if (newInvidual.fitness > bestInvidual.fitness)
                 {
